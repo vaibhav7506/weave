@@ -12,3 +12,13 @@ services:
     envVars:
       - key: WEAVE_TOKEN_SECRET
         generateValue: true
+      # This account's existing free database is in Oregon while the web
+      # service is in Singapore, so use its public TLS hostname.
+      - key: DATABASE_HOST
+        value: dpg-dabhhfgu01pc73b1ea3g-a.oregon-postgres.render.com
+      - key: DATABASE_PORT
+        value: "5432"
+      - key: DATABASE_NAME
+        value: restaurant_1qda
+      - key: DATABASE_OPTIONS
+        value: "?sslmode=require"
