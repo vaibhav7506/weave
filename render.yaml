@@ -1,5 +1,5 @@
-# Free demo deployment. Render Free Postgres expires after 30 days.
-# Import into an account with available free resources; inspect its plan before creating.
+# Deploys the web service. Attach an existing PostgreSQL database and Key Value
+# instance through the Render dashboard when the account has no free slots left.
 services:
   - type: web
     name: weave-whiteboard
@@ -12,33 +12,3 @@ services:
     envVars:
       - key: WEAVE_TOKEN_SECRET
         generateValue: true
-      - key: DATABASE_CONNECTION_URI
-        fromDatabase:
-          name: weave-history
-          property: connectionString
-      - key: DATABASE_USER
-        fromDatabase:
-          name: weave-history
-          property: user
-      - key: DATABASE_PASSWORD
-        fromDatabase:
-          name: weave-history
-          property: password
-      - key: SPRING_DATA_REDIS_URL
-        fromService:
-          type: keyvalue
-          name: weave-relay
-          property: connectionString
-  - type: keyvalue
-    name: weave-relay
-    plan: free
-    region: singapore
-    ipAllowList: []
-databases:
-  - name: weave-history
-    plan: free
-    region: singapore
-    postgresMajorVersion: '17'
-    databaseName: weave
-    user: weave
-    ipAllowList: []
