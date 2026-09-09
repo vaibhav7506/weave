@@ -22,3 +22,7 @@ services:
         value: restaurant_1qda
       - key: DATABASE_OPTIONS
         value: "?sslmode=require&currentSchema=weave"
+      # The account's existing Key Value instance is private to Oregon. Keep
+      # this free Singapore demo isolated instead of exposing that queue.
+      - key: WEAVE_REDIS_ENABLED
+        value: "false"
