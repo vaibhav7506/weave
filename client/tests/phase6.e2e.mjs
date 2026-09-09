@@ -1,0 +1,31 @@
+import {chromium} from 'playwright';
+import jsQR from 'jsqr';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const base=process.env.WEAVE_PREVIEW_URL??'http://127.0.0.1:5187';
+const browser=await chromium.launch({headless:true});
+const desktop=await browser.newPage({viewport:{width:1280,height:900}}),phone=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+const errors=[];for(const page of [desktop,phone])page.on('pageerror',e=>errors.push(String(e)));
+const synced=page=>page.getByRole('status').filter({hasText:/^Synced/}).waitFor({timeout:60000});
+try{
+ await desktop.goto(base);await synced(desktop);
+ const icon=await desktop.locator('link[rel="icon"]').getAttribute('href');assert.equal((await desktop.request.get(new URL(icon,base).href)).status(),200);
+ await desktop.getByRole('button',{name:'Invite to board',exact:true}).click();
+ const dialog=desktop.getByRole('dialog',{name:'Invite to this board'});await dialog.waitFor();
+ const pixels=await dialog.locator('img').evaluate(async img=>{await img.decode();const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);return{width:canvas.width,height:canvas.height,data:[...ctx.getImageData(0,0,canvas.width,canvas.height).data]};});
+ const scanned=jsQR(new Uint8ClampedArray(pixels.data),pixels.width,pixels.height);assert.ok(scanned,'The actual rendered QR must decode');
+ assert.equal(scanned.data,await dialog.getByLabel('Board invite URL').inputValue());
+ assert.equal(new URL(scanned.data).searchParams.get('board'),new URL(desktop.url()).searchParams.get('board'));
+ await fs.mkdir('test-results',{recursive:true});await desktop.screenshot({path:'test-results/phase6-invite.png'});
+ await phone.goto(scanned.data);await synced(phone);
+ await desktop.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
+ await phone.getByRole('button',{name:'Run concurrent edits',exact:true}).click();await synced(phone);
+ await desktop.getByText(/3 saved operations/).waitFor();
+ await phone.mouse.move(1,1);await desktop.mouse.move(1,1);
+ const parsed=new URL(scanned.data),id=parsed.searchParams.get('board'),token=new URLSearchParams(parsed.hash.slice(1)).get('token');
+ const snapshot=await(await fetch(`${base}/api/v1/boards/${id}/snapshot`,{headers:{Authorization:`Bearer ${token}`}})).json();
+ assert.equal(snapshot.sequenceNumber,3);assert.equal(snapshot.elements.length,1);
+ assert.equal(await phone.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ assert.deepEqual(errors,[]);
+ console.log('PASS: favicon served, rendered QR decoded, signed invite joins same board, phone-sized browser edits reach desktop');
+}finally{await browser.close();}

@@ -1,0 +1,28 @@
+{
+  "adapterMs" : 1335.0057,
+  "os" : "Windows 11",
+  "processors" : 16,
+  "java" : "21.0.1",
+  "traceOperations" : 259778,
+  "finalCharacters" : 104852,
+  "method" : "One character per TEXT element; trace-index ordering supplied externally. Prebuilt operations excluded from retained heap; no wire encoding, DB or sequence CRDT.",
+  "rounds" : [ {
+    "round" : 1,
+    "shuffledMergeMs" : 2070.2,
+    "operationsPerSecond" : 138507.6672992279,
+    "retainedEngineHeapBytes" : 54654680,
+    "replayMs" : 1875.5496
+  }, {
+    "round" : 2,
+    "shuffledMergeMs" : 1748.1394,
+    "operationsPerSecond" : 139647.6999747828,
+    "retainedEngineHeapBytes" : 54708112,
+    "replayMs" : 1860.2383
+  }, {
+    "round" : 3,
+    "shuffledMergeMs" : 1776.8615,
+    "operationsPerSecond" : 138406.13279536134,
+    "retainedEngineHeapBytes" : 54665008,
+    "replayMs" : 1876.9255
+  } ]
+}
