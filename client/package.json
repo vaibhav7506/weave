@@ -1,0 +1,32 @@
+{
+  "name": "weave-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "test": "tsx --test src/crdt/core.test.ts tests/connection.test.ts tests/phase5.test.ts",
+    "test:e2e": "node tests/sync.e2e.mjs",
+    "test:parity": "tsx --test tests/parity.test.ts",
+    "test:phase5": "node tests/phase5.e2e.mjs",
+    "test:load": "tsx tests/load.ts",
+    "test:phase6": "node tests/phase6.e2e.mjs"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.9",
+    "jsqr": "^1.4.0",
+    "playwright": "1.62.1",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2",
+    "vite": "7.3.6"
+  }
+}
