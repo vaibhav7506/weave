@@ -46,6 +46,7 @@ class HardeningIntegrationTest {
         @Override public CompletionStage<?> onClose(WebSocket socket,int code,String reason){closeReason=reason;closed.complete(code);return null;}
         void send(Object data){try{socket.sendText(json.writeValueAsString(data),true).join();}catch(Exception e){throw new RuntimeException(e);}}
         JsonNode next(String type)throws Exception{long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(8);while(System.nanoTime()<deadline){var message=inbox.poll(100,TimeUnit.MILLISECONDS);if(message!=null&&message.path("type").asText().equals(type))return message;}throw new AssertionError("No "+type);}
+        JsonNode operation(UUID opId)throws Exception{long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(8);while(System.nanoTime()<deadline){var message=next("OPERATION");if(opId.toString().equals(message.path("operation").path("opId").asText()))return message;}throw new AssertionError("No operation "+opId);}
         void op(Operation op){send(Map.of("type","OPERATION","operation",op));}
         @Override public void close(){socket.abort();}
     }
@@ -76,7 +77,9 @@ class HardeningIntegrationTest {
             try(var rejoin=new Peer(port1,board.id(),token,1)){
                 assertEquals(3,rejoin.next("SYNC_SNAPSHOT").path("snapshot").path("sequenceNumber").asLong());
                 assertEquals(4,rejoin.next("OPERATION").path("sequenceNumber").asLong());rejoin.next("SYNC_COMPLETE");
-                rejoin.op(move);assertEquals(2,rejoin.next("OPERATION").path("sequenceNumber").asLong());assertEquals(4,store.sequence(board.id()));
+                // Cross-instance Redis delivery can leave an already-delivered replay in the inbox.
+                // Verify the retry acknowledgement by its immutable operation ID, rather than queue order.
+                rejoin.op(move);assertEquals(2,rejoin.operation(move.opId()).path("sequenceNumber").asLong());assertEquals(4,store.sequence(board.id()));
             }
         }
     }
