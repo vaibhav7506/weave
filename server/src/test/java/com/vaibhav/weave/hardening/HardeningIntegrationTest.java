@@ -77,9 +77,10 @@ class HardeningIntegrationTest {
             try(var rejoin=new Peer(port1,board.id(),token,1)){
                 assertEquals(3,rejoin.next("SYNC_SNAPSHOT").path("snapshot").path("sequenceNumber").asLong());
                 assertEquals(4,rejoin.next("OPERATION").path("sequenceNumber").asLong());rejoin.next("SYNC_COMPLETE");
-                // Cross-instance Redis delivery can leave an already-delivered replay in the inbox.
-                // Verify the retry acknowledgement by its immutable operation ID, rather than queue order.
-                rejoin.op(move);assertEquals(2,rejoin.operation(move.opId()).path("sequenceNumber").asLong());assertEquals(4,store.sequence(board.id()));
+                // Concurrent move and colour operations may commit in either order. Cross-instance
+                // delivery can also leave a replay in the inbox. The immutable op ID fixes both races.
+                long originalSequence=store.history(board.id(),0,null,10).operations().stream().filter(row->row.operation().opId().equals(move.opId())).findFirst().orElseThrow().sequenceNumber();
+                rejoin.op(move);assertEquals(originalSequence,rejoin.operation(move.opId()).path("sequenceNumber").asLong());assertEquals(4,store.sequence(board.id()));
             }
         }
     }
