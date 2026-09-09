@@ -1,0 +1,48 @@
+name: weave
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: weave
+      POSTGRES_USER: weave
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/prepare-compose.ps1 first}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U weave -d weave"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --save, "", --appendonly, "no"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  app:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    ports:
+      - "127.0.0.1:${WEAVE_HTTP_PORT:-5188}:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/weave
+      DATABASE_USER: weave
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/prepare-compose.ps1 first}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      WEAVE_TOKEN_SECRET: ${WEAVE_TOKEN_SECRET:?Run scripts/prepare-compose.ps1 first}
+      WEAVE_ORIGINS: ${WEAVE_ORIGINS:-http://localhost:5188,http://127.0.0.1:5188}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    mem_limit: 768m
+    restart: unless-stopped
+volumes:
+  postgres-data:

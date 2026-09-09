@@ -1,0 +1,11 @@
+.git
+.tools
+.env
+**/.env
+**/node_modules
+**/target
+**/dist
+**/test-results
+**/*.log
+.codex
+.agents
