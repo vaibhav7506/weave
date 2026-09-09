@@ -258,11 +258,11 @@ These are short, same-laptop loopback tests on a Ryzen 7 4800H, Java 21 platform
 
 
 
-The Java suite passes 23 tests. Client, parity, production-build and all three browser suites pass locally. The complete Docker Compose stack is healthy and passes those browser suites, including decoded QR invites and mobile editing. Public deployment and an actual GitHub CI run are the remaining external release checks.
+The Java suite passes 23 tests. Client, parity, production-build and all three browser suites pass locally. The complete Docker Compose stack is healthy and passes those browser suites, including decoded QR invites and mobile editing. GitHub CI is green and the public Render health endpoint returns `{"status":"ok"}`.
 
 
 
-For the packaged app, use `./scripts/build.ps1`. With Docker running, use `./scripts/prepare-compose.ps1` then `docker compose up --build --wait --wait-timeout 180`. Compose opens on port **5188** and uses its own persistent database volume; the existing preview stays on **5187**. See [deployment instructions and free-tier limits](docs/deployment.md). The Render blueprint is prepared, not deployed.
+For the packaged app, use `./scripts/build.ps1`. With Docker running, use `./scripts/prepare-compose.ps1` then `docker compose up --build --wait --wait-timeout 180`. Compose opens on port **5188** and uses its own persistent database volume; the existing preview stays on **5187**. See [deployment instructions and free-tier limits](docs/deployment.md). The public demo is at `https://weave-whiteboard-mpz7.onrender.com`.
 
 
 
@@ -318,15 +318,15 @@ For the packaged app, use `./scripts/build.ps1`. With Docker running, use `./scr
 
 
 
-- [ ] Phase 5: editor/history/comparison/export and load testing implemented and locally verified; hosted deployment, GitHub CI and container runtime verification pending.
+- [x] Phase 5: editor/history/comparison/export, load testing, container verification, GitHub CI, and hosted health verification.
 
 
 
-- [ ] Phase 6: adversarial correctness and external benchmarks.
+- [x] Phase 6: adversarial correctness, trace/JMH benchmarks, causal collection, QR invite verification, and hosted deployment hardening.
 
 
 
-Proceed to the next phase only when the user says **go**. Multiple server instances now share edits through Redis and PostgreSQL. Phase 5 still needs its deployment and external verification gates completed. Phase 6 hardening remains deferred.
+The local and container scaling configuration uses Redis and PostgreSQL. The public free demo is intentionally a single service because the account's existing Key Value instance is private in another Render region.
 
 
 
