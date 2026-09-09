@@ -2,7 +2,7 @@
 # instance through the Render dashboard when the account has no free slots left.
 services:
   - type: web
-    name: weave-whiteboard
+    name: weavevaibhav7506-whiteboard
     runtime: docker
     plan: free
     region: singapore
