@@ -1,0 +1,8 @@
+{
+  "archiveOperations" : 50000,
+  "operations" : 50000,
+  "equalSnapshots" : true,
+  "fullReplayMedianMs" : 414.2188,
+  "activeOperations" : 0,
+  "snapshotMedianMs" : 2.9835
+}
