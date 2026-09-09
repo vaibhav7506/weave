@@ -1,0 +1,10 @@
+node_modules/
+dist/
+target/
+.tools/
+*.log
+.npm-cache/
+test-results/
+.env
+server/.env
+PHASES.md
