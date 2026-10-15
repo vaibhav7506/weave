@@ -5,7 +5,14 @@ set -eu
 # arguments. This supports providers such as Neon that issue one connection URI.
 if [ -n "${DATABASE_CONNECTION_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
     authority=${DATABASE_CONNECTION_URI#*://}
-    export DATABASE_URL="jdbc:postgresql://${authority##*@}"
+    jdbc_url="jdbc:postgresql://${authority##*@}"
+    schema=${WEAVE_SCHEMA:-weave}
+    case "$jdbc_url" in
+        *currentSchema=*) ;;
+        *\?*) jdbc_url="${jdbc_url}&currentSchema=${schema}" ;;
+        *) jdbc_url="${jdbc_url}?currentSchema=${schema}" ;;
+    esac
+    export DATABASE_URL="$jdbc_url"
 
     if [ "$authority" != "${authority#*@}" ]; then
         credentials=${authority%@*}
