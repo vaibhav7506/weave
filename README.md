@@ -262,7 +262,7 @@ The Java suite passes 23 tests. Client, parity, production-build and all three b
 
 
 
-For the packaged app, use `./scripts/build.ps1`. With Docker running, use `./scripts/prepare-compose.ps1` then `docker compose up --build --wait --wait-timeout 180`. Compose opens on port **5188** and uses its own persistent database volume; the existing preview stays on **5187**. See [deployment instructions and free-tier limits](docs/deployment.md). The public demo is at `https://weave-whiteboard-mpz7.onrender.com`.
+For the packaged app, use `./scripts/build.ps1`. With Docker running, use `./scripts/prepare-compose.ps1` then `docker compose up --build --wait --wait-timeout 180`. Compose opens on port **5188** and uses its own persistent database volume; the existing preview stays on **5187**. See [deployment instructions and free-tier limits](docs/deployment.md). The public demo is at `https://weavevaibhav7506-whiteboard.onrender.com`.
 
 
 
