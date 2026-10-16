@@ -3,7 +3,9 @@ set -eu
 # Convert a provider connection URI to Spring's JDBC URL. Credentials remain in
 # process environment only; they are never written to a config file or command
 # arguments. This supports providers such as Neon that issue one connection URI.
-if [ -n "${DATABASE_CONNECTION_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
+# When it is set, it deliberately takes precedence over older individual
+# connection settings left in the hosting environment.
+if [ -n "${DATABASE_CONNECTION_URI:-}" ]; then
     authority=${DATABASE_CONNECTION_URI#*://}
     jdbc_url="jdbc:postgresql://${authority##*@}"
     schema=${WEAVE_SCHEMA:-weave}
@@ -16,12 +18,8 @@ if [ -n "${DATABASE_CONNECTION_URI:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
 
     if [ "$authority" != "${authority#*@}" ]; then
         credentials=${authority%@*}
-        if [ -z "${DATABASE_USER:-}" ]; then
-            export DATABASE_USER=${credentials%%:*}
-        fi
-        if [ -z "${DATABASE_PASSWORD:-}" ]; then
-            export DATABASE_PASSWORD=${credentials#*:}
-        fi
+        export DATABASE_USER=${credentials%%:*}
+        export DATABASE_PASSWORD=${credentials#*:}
     fi
 fi
 exec java -jar /app/app.jar
